@@ -33,7 +33,7 @@ cd solana-vista
 
 3. Configure Vista:
 
-Edit `config.yml` with your desired settings, including accounts and programs to index.
+   Edit `config.yml` with your desired settings, including accounts and programs to index.
 
 4. Start the indexer:
 
