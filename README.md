@@ -119,6 +119,56 @@ Vista is licensed under [MIT license](LICENSE-MIT).
 - Website: [solanavista.io](https://solanavista.io)
 - GitHub: [https://github.com/0xCipherCoder/solana-vista](https://github.com/0xCipherCoder/solana-vista)
 
+## Roadmap
+
+Our development roadmap outlines the planned implementation of features for Solana Vista. This roadmap is subject to change based on community feedback and ecosystem developments.
+
+### Phase 1: MVP for Hackathon (Current)
+
+- [x] Basic project structure and core components
+- [ ] Real-time indexing of specified Solana accounts and programs
+- [ ] Basic historical data fetching
+- [ ] Account diff tracking
+- [ ] Simple GraphQL API for data queries
+- [ ] Support for PostgreSQL storage backend
+- [ ] Docker container for easy deployment
+- [ ] Basic Anchor IDL support (latest version)
+- [ ] Integration with Luzid local validator
+
+### Phase 2: Core Feature Expansion
+
+- [ ] Jito Shredstream integration
+- [ ] Comprehensive historical data indexing with backfilling
+- [ ] Enhanced Anchor IDL support (multiple versions)
+- [ ] Transaction indexing and efficient querying
+- [ ] Expanded GraphQL API with subscriptions for real-time updates
+- [ ] Support for MySQL and Supabase storage backends
+- [ ] Basic plugin system for community contributions
+
+### Phase 3: Advanced Features and Scaling
+
+- [ ] Time-series data support with InfluxDB integration
+- [ ] Advanced program account listeners
+- [ ] Comprehensive Geyser plugin support
+- [ ] Enhanced plugin system with hot-reloading
+- [ ] Horizontal scaling configurations for high-throughput indexing
+- [ ] Advanced cloud deployment options (AWS, GCP, Azure)
+- [ ] Performance optimizations and benchmarking tools
+
+### Phase 4: Ecosystem Integration and Community Growth
+
+- [ ] Integration with popular Solana development frameworks
+- [ ] Support for additional specialized databases
+- [ ] Advanced analytics and data export features
+- [ ] Comprehensive documentation and tutorials
+- [ ] Community plugin marketplace
+- [ ] Regular security audits and optimizations
+- [ ] Continuous performance improvements based on community feedback
+
+We're committed to the ongoing development and improvement of Solana Vista. This roadmap will be regularly updated to reflect our progress and any changes in priorities based on community needs and ecosystem developments.
+
+Your feedback and contributions are crucial in shaping the future of Solana Vista. Feel free to open issues or submit pull requests on our [GitHub repository](https://github.com/0xCipherCoder/solana-vista) to suggest features or report bugs.
+
 ## Acknowledgements
 
 Vista is built on the shoulders of giants. We'd like to thank the Solana community, Jito Labs, and all the open-source projects that made this possible.
