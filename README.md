@@ -123,7 +123,7 @@ Vista is licensed under [MIT license](LICENSE-MIT).
 
 Our development roadmap outlines the planned implementation of features for Solana Vista. This roadmap is subject to change based on community feedback and ecosystem developments.
 
-### Phase 1: MVP for Hackathon (Current)
+### Phase 1: MVP (Current)
 
 - [x] Basic project structure and core components
 - [ ] Real-time indexing of specified Solana accounts and programs
