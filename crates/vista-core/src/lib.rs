@@ -5,6 +5,11 @@ use thiserror::Error;
 
 pub mod traits;
 pub mod models;
+pub mod plugin_registry;
+pub mod config;
+
+pub use plugin_registry::RpcProviderRegistry;
+pub use config::Config;
 
 use models::{AccountInfo, TransactionInfo};
 use traits::{Storage, Ingestor};
