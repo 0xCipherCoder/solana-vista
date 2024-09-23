@@ -1,0 +1,13 @@
+[package]
+name = "vista-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+solana-sdk = "1.14"
+solana-client = "1.14"
+solana-transaction-status = "1.14"
+tokio = { version = "1.28", features = ["full"] }
+async-trait = "0.1.68"
+thiserror = "1.0.40"
+log = "0.4.17"

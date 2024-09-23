@@ -1,0 +1,13 @@
+[package]
+name = "vista-storage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+vista-core = { path = "../vista-core" }
+async-trait = "0.1.68"
+sqlx = { version = "0.6", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono"] }
+tokio = { version = "1.28", features = ["full"] }
+thiserror = "1.0.40"
+log = "0.4.17"
+base64 = "0.21.0"
