@@ -1,7 +1,13 @@
-use solana_sdk::{pubkey::Pubkey, signature::Signature};
-use solana_transaction_status::TransactionStatus;
-use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use solana_sdk::pubkey::Pubkey;
 use thiserror::Error;
+
+pub mod traits;
+pub mod models;
+
+use models::{AccountInfo, TransactionInfo};
+use traits::{Storage, Ingestor};
 
 #[derive(Debug, Error)]
 pub enum IndexerError {
@@ -11,60 +17,95 @@ pub enum IndexerError {
     AccountNotFound(Pubkey),
     #[error("Storage error: {0}")]
     StorageError(String),
+    #[error("Ingestor error: {0}")]
+    IngestorError(String),
 }
 
-#[derive(Debug, Clone)]
-pub struct AccountInfo {
-    pub pubkey: Pubkey,
-    pub lamports: u64,
-    pub owner: Pubkey,
-    pub data: Vec<u8>,
+pub struct Indexer {
+    storage: Arc<dyn Storage>,
+    ingestors: Vec<Box<dyn Ingestor>>,
+    tracked_accounts: Arc<RwLock<Vec<Pubkey>>>,
+    tracked_programs: Arc<RwLock<Vec<Pubkey>>>,
 }
 
-#[derive(Debug, Clone)]
-pub struct TransactionInfo {
-    pub signature: Signature,
-    pub status: TransactionStatus,
-}
-
-pub trait IndexerStorage: Send + Sync {
-    async fn store_account(&self, account: AccountInfo) -> Result<(), IndexerError>;
-    async fn store_transaction(&self, transaction: TransactionInfo) -> Result<(), IndexerError>;
-    async fn get_account(&self, pubkey: &Pubkey) -> Result<Option<AccountInfo>, IndexerError>;
-    async fn get_transaction(&self, signature: &Signature) -> Result<Option<TransactionInfo>, IndexerError>;
-}
-
-pub struct Indexer<S: IndexerStorage> {
-    storage: S,
-    tracked_accounts: HashMap<Pubkey, ()>,
-    tracked_programs: HashMap<Pubkey, ()>,
-}
-
-impl<S: IndexerStorage> Indexer<S> {
-    pub fn new(storage: S) -> Self {
+impl Indexer {
+    pub fn new(storage: Arc<dyn Storage>) -> Self {
         Self {
             storage,
-            tracked_accounts: HashMap::new(),
-            tracked_programs: HashMap::new(),
+            ingestors: Vec::new(),
+            tracked_accounts: Arc::new(RwLock::new(Vec::new())),
+            tracked_programs: Arc::new(RwLock::new(Vec::new())),
         }
     }
 
-    pub fn track_account(&mut self, pubkey: Pubkey) {
-        self.tracked_accounts.insert(pubkey, ());
+    pub fn add_ingestor(&mut self, ingestor: Box<dyn Ingestor>) {
+        self.ingestors.push(ingestor);
     }
 
-    pub fn track_program(&mut self, pubkey: Pubkey) {
-        self.tracked_programs.insert(pubkey, ());
+    pub async fn track_account(&self, pubkey: Pubkey) -> Result<(), IndexerError> {
+        let mut accounts = self.tracked_accounts.write().await;
+        if !accounts.contains(&pubkey) {
+            accounts.push(pubkey);
+            for ingestor in &self.ingestors {
+                ingestor.track_account(pubkey).await?;
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn untrack_account(&self, pubkey: &Pubkey) -> Result<(), IndexerError> {
+        let mut accounts = self.tracked_accounts.write().await;
+        if let Some(index) = accounts.iter().position(|x| x == pubkey) {
+            accounts.remove(index);
+            for ingestor in &self.ingestors {
+                ingestor.untrack_account(pubkey).await?;
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn track_program(&self, pubkey: Pubkey) -> Result<(), IndexerError> {
+        let mut programs = self.tracked_programs.write().await;
+        if !programs.contains(&pubkey) {
+            programs.push(pubkey);
+            for ingestor in &self.ingestors {
+                ingestor.track_program(pubkey).await?;
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn untrack_program(&self, pubkey: &Pubkey) -> Result<(), IndexerError> {
+        let mut programs = self.tracked_programs.write().await;
+        if let Some(index) = programs.iter().position(|x| x == pubkey) {
+            programs.remove(index);
+            for ingestor in &self.ingestors {
+                ingestor.untrack_program(pubkey).await?;
+            }
+        }
+        Ok(())
     }
 
     pub async fn process_account(&self, account: AccountInfo) -> Result<(), IndexerError> {
-        if self.tracked_accounts.contains_key(&account.pubkey) || self.tracked_programs.contains_key(&account.owner) {
+        let accounts = self.tracked_accounts.read().await;
+        let programs = self.tracked_programs.read().await;
+        
+        if accounts.contains(&account.pubkey) || programs.contains(&account.owner) {
             self.storage.store_account(account).await?;
         }
         Ok(())
     }
 
     pub async fn process_transaction(&self, transaction: TransactionInfo) -> Result<(), IndexerError> {
-        self.storage.store_transaction(transaction).await
+        self.storage.store_transaction(transaction).await?;
+        Ok(())
+    }
+
+    pub async fn start(&self) -> Result<(), IndexerError> {
+        for ingestor in &self.ingestors {
+            ingestor.start(self.storage.clone(), self.tracked_accounts.clone(), self.tracked_programs.clone()).await
+                .map_err(|e| IndexerError::IngestorError(e.to_string()))?;
+        }
+        Ok(())
     }
 }
