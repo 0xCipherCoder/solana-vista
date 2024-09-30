@@ -1,0 +1,11 @@
+[package]
+name = "vista-anchor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anchor-syn = { version = "0.27.0", features = ["idl"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+borsh = "0.9"
