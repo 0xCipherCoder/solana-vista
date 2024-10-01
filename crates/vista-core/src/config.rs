@@ -9,6 +9,7 @@ pub struct Config {
     pub plugin_dir: Option<String>,
     pub tracked_accounts: Vec<String>,
     pub tracked_programs: Vec<ProgramConfig>,
+    pub storage: StorageConfig,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -23,6 +24,12 @@ pub struct ProviderConfig {
     pub provider_type: String,
     pub priority: u8,
     // Add any other provider-specific configurations here
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct StorageConfig {
+    pub plugin: String,
+    pub config: Value,
 }
 
 impl Config {

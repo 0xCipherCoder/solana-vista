@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use libloading::{Library, Symbol};
 use crate::traits::RpcProvider;
 use crate::config::Config;
+use crate::traits::StoragePlugin;
 
 pub struct RpcProviderRegistry {
     providers: HashMap<String, Box<dyn RpcProvider>>,
@@ -46,5 +47,25 @@ impl RpcProviderRegistry {
             }
         }
         Ok(())
+    }
+}
+
+pub struct StoragePluginRegistry {
+    plugins: HashMap<String, Box<dyn StoragePlugin>>,
+}
+
+impl StoragePluginRegistry {
+    pub fn new() -> Self {
+        Self {
+            plugins: HashMap::new(),
+        }
+    }
+
+    pub fn register_plugin(&mut self, plugin: Box<dyn StoragePlugin>) {
+        self.plugins.insert(plugin.name().to_string(), plugin);
+    }
+
+    pub fn get_plugin(&self, name: &str) -> Option<&Box<dyn StoragePlugin>> {
+        self.plugins.get(name)
     }
 }
