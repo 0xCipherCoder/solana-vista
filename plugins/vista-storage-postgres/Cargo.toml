@@ -1,0 +1,15 @@
+[package]
+name = "vista-storage-postgres"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+vista-core = { path = "../../crates/vista-core" }
+async-trait = "0.1.68"
+sqlx = { version = "0.7.1", features = ["runtime-tokio-rustls", "postgres", "json"] }
+tokio = { version = "1.29.1", features = ["full"] }
+serde_json = "1.0.100"
+thiserror = "1.0.43"
